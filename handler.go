@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -36,7 +35,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	// create server
 	fmt.Println("Listening at PORT ", port)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	router.ServeHTTP(w, r)
 }
 
 func handleHomeRoute(w http.ResponseWriter, r *http.Request){
