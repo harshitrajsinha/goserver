@@ -16,7 +16,7 @@ type ServerMessage struct{
 	Message string `json:"message"`
 }
 
-func Handler() {
+func Handler(w http.ResponseWriter, r *http.Request) {
 
 	err := godotenv.Load()
 	if err != nil{
