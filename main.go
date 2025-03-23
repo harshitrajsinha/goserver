@@ -16,7 +16,7 @@ type ServerMessage struct{
 	Message string `json:"message"`
 }
 
-func main() {
+func Main() {
 
 	err := godotenv.Load()
 	if err != nil{
@@ -31,15 +31,15 @@ func main() {
 	var router *mux.Router = mux.NewRouter()
 
 	// Create routes
-	router.HandleFunc("/", handleHomeRoute).Methods("GET")
-	router.HandleFunc("/info", handleUserInformation).Methods("POST")
+	router.HandleFunc("/", HandleHomeRoute).Methods("GET")
+	router.HandleFunc("/info", HandleUserInformation).Methods("POST")
 
 	// create server
 	fmt.Println("Listening at PORT ", port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }
 
-func handleHomeRoute(w http.ResponseWriter, r *http.Request){
+func HandleHomeRoute(w http.ResponseWriter, r *http.Request){
 	var rootMessage ServerMessage = ServerMessage{Code: http.StatusOK, Message: "Server is functioning"}
 	ipAddress := getIpAddr(r)
 	if len(ipAddress) != 0{
@@ -48,7 +48,7 @@ func handleHomeRoute(w http.ResponseWriter, r *http.Request){
 	json.NewEncoder(w).Encode(rootMessage)
 }
 
-func handleUserInformation(w http.ResponseWriter, r *http.Request){
+func HandleUserInformation(w http.ResponseWriter, r *http.Request){
 
 	var userInfo map[string]interface{}
 	var successMessage ServerMessage = ServerMessage{Code: http.StatusOK, Message: "Information recieved successfully"}
