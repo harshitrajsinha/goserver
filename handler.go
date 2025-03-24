@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -41,7 +42,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 func handleHomeRoute(w http.ResponseWriter, r *http.Request){
 	var rootMessage ServerMessage = ServerMessage{Code: http.StatusOK, Message: "Server is functioning"}
 	ipAddress := getIpAddr(r)
-	if len(ipAddress) != 0{
+	if (ipAddress) != ""{
 		fmt.Println(ipAddress)
 	}
 	json.NewEncoder(w).Encode(rootMessage)
@@ -60,7 +61,7 @@ func handleUserInformation(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	ipAddress := getIpAddr(r)
-	if len(ipAddress) != 0{
+	if (ipAddress) != ""{
 		fmt.Println(ipAddress)
 	}
 	fmt.Println(userInfo)
@@ -68,21 +69,26 @@ func handleUserInformation(w http.ResponseWriter, r *http.Request){
 
 }
 
-func getIpAddr(r *http.Request) []string {
-	var ipAddr []string
+func getIpAddr(r *http.Request) string {
+	if vercelIP := r.Header.Get("X-Vercel-Forwarded-For"); vercelIP != "" {
+        return vercelIP
+    }
+	
 	xff := r.Header.Get("X-Forwarded-For")
 	if xff != "" {
-		ipAddr = append(ipAddr, fmt.Sprintf("xff %s", xff))
+		// The client IP is the first one in the list
+		ips := strings.Split(xff, ",")
+		if len(ips) > 0 {
+			return strings.TrimSpace(ips[0]) // Return the first IP
+		}
 	}
 
-	// Check X-Real-IP (another common header)
+	// Fallback to X-Real-IP
 	xRealIP := r.Header.Get("X-Real-IP")
 	if xRealIP != "" {
-		ipAddr = append(ipAddr,fmt.Sprintf("xff %s", xRealIP))
+		return xRealIP
 	}
 
-	// Fallback: use RemoteAddr
-	ip := r.RemoteAddr
-	ipAddr = append(ipAddr, fmt.Sprintf("xff %s", ip))
-	return ipAddr
+	// Final fallback: use RemoteAddr
+	return r.RemoteAddr
 }
