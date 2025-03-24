@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -39,10 +38,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 func handleHomeRoute(w http.ResponseWriter, r *http.Request){
 	var rootMessage ServerMessage = ServerMessage{Code: http.StatusOK, Message: "Server is functioning"}
-	ipAddress := getIpAddr(r)
-	if (ipAddress) != ""{
-		fmt.Println(ipAddress)
-	}
+	getIpAddr(r)
+
 	json.NewEncoder(w).Encode(rootMessage)
 }
 
@@ -58,35 +55,25 @@ func handleUserInformation(w http.ResponseWriter, r *http.Request){
 		fmt.Println("Error occured ", err)
 		return
 	}
-	ipAddress := getIpAddr(r)
-	if (ipAddress) != ""{
-		fmt.Println(ipAddress)
-	}
+	getIpAddr(r)
+
 	fmt.Println(userInfo)
 	json.NewEncoder(w).Encode(successMessage)
 
 }
 
-func getIpAddr(r *http.Request) string {
-	if vercelIP := r.Header.Get("X-Vercel-Forwarded-For"); vercelIP != "" {
-        return vercelIP
-    }
+func getIpAddr(r *http.Request) {
+
+	vercelIP := r.Header.Get("X-Vercel-Forwarded-For")
+	fmt.Println("vercelip, ", vercelIP)
 	
 	xff := r.Header.Get("X-Forwarded-For")
-	if xff != "" {
-		// The client IP is the first one in the list
-		ips := strings.Split(xff, ",")
-		if len(ips) > 0 {
-			return strings.TrimSpace(ips[0]) // Return the first IP
-		}
-	}
+	fmt.Println("xff, ", xff)
 
 	// Fallback to X-Real-IP
 	xRealIP := r.Header.Get("X-Real-IP")
-	if xRealIP != "" {
-		return xRealIP
-	}
+	fmt.Println("xRealIP, ", xRealIP)
 
 	// Final fallback: use RemoteAddr
-	return r.RemoteAddr
+	fmt.Println("r.RemoteAddr ", r.RemoteAddr)
 }
