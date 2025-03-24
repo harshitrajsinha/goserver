@@ -18,10 +18,8 @@ type ServerMessage struct{
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 
-	err := godotenv.Load()
-	if err != nil{
-		fmt.Println("No ENV file present")
-	}
+	_ = godotenv.Load()
+	
 	port := os.Getenv("PORT")
 	if port == ""{
 		port = "8080"
